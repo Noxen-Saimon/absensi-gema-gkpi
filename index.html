@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#FAF7F0" />
+    <title>Absensi Jemaat — GEMA GKPI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --paper: #faf7f0;
+        --paper-deep: #f2ede0;
+        --ink: #1f1b14;
+        --ink-soft: #6b6558;
+        --ink-faint: #a8a196;
+        --line: #e8e2d5;
+        --accent: #b45309;
+        --accent-dark: #92400e;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        background: var(--paper);
+        color: var(--ink);
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", system-ui,
+          sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-rendering: optimizeLegibility;
+      }
+
+      /* Subtle paper texture */
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: 0;
+        background-image:
+          radial-gradient(
+            circle at 20% 10%,
+            rgba(180, 83, 9, 0.04),
+            transparent 45%
+          ),
+          radial-gradient(
+            circle at 80% 90%,
+            rgba(180, 83, 9, 0.03),
+            transparent 50%
+          );
+      }
+
+      .shell {
+        position: relative;
+        z-index: 1;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* ---------- Top strip (sangat tipis, opsional branding) ---------- */
+      .topstrip {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 22px;
+        border-bottom: 1px solid var(--line);
+        font-size: 11px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        font-weight: 600;
+        color: var(--ink-faint);
+        opacity: 0;
+        transition: opacity 0.4s ease 0.15s;
+      }
+
+      .topstrip.ready {
+        opacity: 1;
+      }
+
+      .topstrip .brand {
+        color: var(--accent);
+      }
+
+      .topstrip .year {
+        color: var(--ink-faint);
+        font-variant-numeric: tabular-nums;
+      }
+
+      /* ---------- Frame area ---------- */
+      .frame-wrap {
+        position: relative;
+        flex: 1 1 auto;
+        min-height: 0;
+        background: var(--paper);
+      }
+
+      iframe {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        border: 0;
+        background: var(--paper);
+        opacity: 0;
+        transition: opacity 0.35s ease;
+      }
+      iframe.ready {
+        opacity: 1;
+      }
+
+      /* ---------- Loader ---------- */
+      .loader {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 22px;
+        background: var(--paper);
+        transition:
+          opacity 0.4s ease,
+          visibility 0.4s ease;
+      }
+
+      .loader.gone {
+        opacity: 0;
+        visibility: hidden;
+      }
+
+      .loader-mark {
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        border: 1.5px solid var(--line);
+        border-top-color: var(--accent);
+        animation: spin 0.9s linear infinite;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .loader-text {
+        font-family: "Source Serif 4", Georgia, serif;
+        font-size: 14px;
+        letter-spacing: 0.02em;
+        color: var(--ink-soft);
+      }
+
+      .loader-text::after {
+        content: "";
+        animation: dots 1.4s steps(4, end) infinite;
+      }
+
+      @keyframes dots {
+        0% {
+          content: "";
+        }
+
+        25% {
+          content: ".";
+        }
+
+        50% {
+          content: "..";
+        }
+
+        75% {
+          content: "...";
+        }
+
+        100% {
+          content: "";
+        }
+      }
+
+      /* ---------- Error state ---------- */
+      .error {
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 40px 24px;
+        gap: 14px;
+        min-height: 60vh;
+      }
+
+      .error.show {
+        display: flex;
+      }
+
+      .error h2 {
+        font-family: "Source Serif 4", Georgia, serif;
+        font-size: 20px;
+        font-weight: 400;
+        margin: 0;
+        color: var(--ink);
+      }
+
+      .error p {
+        font-size: 14px;
+        color: var(--ink-soft);
+        margin: 0;
+        max-width: 320px;
+        line-height: 1.55;
+      }
+
+      .error button {
+        margin-top: 8px;
+        padding: 11px 22px;
+        border: none;
+        border-radius: 4px;
+        background: var(--accent);
+        color: #fff;
+        font-family: inherit;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.15s ease;
+      }
+
+      .error button:hover {
+        background: var(--accent-dark);
+      }
+
+      /* ---------- Footer ---------- */
+      .footer {
+        padding: 14px 22px;
+        text-align: center;
+        font-size: 11px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--ink-faint);
+        border-top: 1px solid var(--line);
+        background: var(--paper);
+      }
+
+      .footer .dot {
+        display: inline-block;
+        margin: 0 8px;
+        color: var(--line);
+      }
+
+      @media (max-width: 480px) {
+        .topstrip {
+          padding: 9px 16px;
+          font-size: 10px;
+        }
+
+        .footer {
+          padding: 12px 16px;
+          font-size: 10px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="shell">
+      <div class="topstrip" id="topstrip">
+        <span class="brand">GEMA GKPI</span>
+        <span class="year" id="year"></span>
+      </div>
+
+      <div class="frame-wrap">
+        <div class="loader" id="loader">
+          <div class="loader-mark"></div>
+          <div class="loader-text">Menyiapkan formulir</div>
+        </div>
+
+        <div class="error" id="error">
+          <h2>Tidak bisa memuat formulir</h2>
+          <p>
+            Periksa koneksi internetmu, lalu coba lagi. Kalau masih bermasalah,
+            hubungi usher.
+          </p>
+          <button onclick="location.reload()">Coba lagi</button>
+        </div>
+
+        <iframe
+          id="app"
+          src="https://script.google.com/macros/s/AKfycbyN2mQjxTICR2tGOeGuBqpHS1IdZ2ZNiqPxRtJEQpLJKCxUU25j_2mO8V5UVgzfzlGYcQ/exec"
+          title="Formulir Absensi Jemaat"
+          allow="clipboard-write"
+          loading="eager"
+          referrerpolicy="no-referrer-when-downgrade"
+        ></iframe>
+      </div>
+
+      <div class="footer">
+        <span>Sistem Absensi</span>
+        <span class="dot">·</span>
+        <span id="footerYear"></span>
+      </div>
+    </div>
+
+    <script>
+      const iframe = document.getElementById("app");
+      const loader = document.getElementById("loader");
+      const error = document.getElementById("error");
+      const topstrip = document.getElementById("topstrip");
+
+      // Isi tahun otomatis
+      const year = new Date().getFullYear();
+      document.getElementById("year").textContent = year;
+      document.getElementById("footerYear").textContent = year;
+
+      // Timeout fallback — kalau iframe tidak load dalam 12 detik, tampilkan error
+      let loaded = false;
+      const timeout = setTimeout(() => {
+        if (!loaded) {
+          loader.classList.add("gone");
+          error.classList.add("show");
+        }
+      }, 12000);
+
+      iframe.addEventListener("load", () => {
+        loaded = true;
+        clearTimeout(timeout);
+        // Delay kecil biar transisi nggak "kaget"
+        setTimeout(() => {
+          loader.classList.add("gone");
+          iframe.classList.add("ready");
+          topstrip.classList.add("ready");
+        }, 150);
+      });
+
+      iframe.addEventListener("error", () => {
+        clearTimeout(timeout);
+        loader.classList.add("gone");
+        error.classList.add("show");
+      });
+    </script>
+  </body>
+</html>
