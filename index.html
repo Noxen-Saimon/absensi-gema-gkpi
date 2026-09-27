@@ -299,7 +299,6 @@
 
         <iframe
           id="app"
-          src="https://script.google.com/macros/s/AKfycbyN2mQjxTICR2tGOeGuBqpHS1IdZ2ZNiqPxRtJEQpLJKCxUU25j_2mO8V5UVgzfzlGYcQ/exec"
           title="Formulir Absensi Jemaat"
           allow="clipboard-write"
           loading="eager"
@@ -315,6 +314,16 @@
     </div>
 
     <script>
+      const APP_SCRIPT_BASE =
+        "https://script.google.com/macros/s/AKfycbyN2mQjxTICR2tGOeGuBqpHS1IdZ2ZNiqPxRtJEQpLJKCxUU25j_2mO8V5UVgzfzlGYcQ/exec";
+
+      const params = new URLSearchParams(window.location.search);
+      const token = params.get("t") || "";
+
+      const iframeUrl =
+        APP_SCRIPT_BASE + (token ? "?t=" + encodeURIComponent(token) : "");
+
+      document.getElementById("app").src = iframeUrl;
       const iframe = document.getElementById("app");
       const loader = document.getElementById("loader");
       const error = document.getElementById("error");
